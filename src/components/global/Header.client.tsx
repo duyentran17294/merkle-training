@@ -180,30 +180,28 @@ function DesktopHeader({
           <ul className="flex gap-8">
             {/* Top level menu items */}
             {(menu?.items || []).map((item) => (
-              <>
-                <li className="relative">
-                  <Link key={item.id} to={item.to} target={item.target}>
-                    {item.title}
-                  </Link>
-                  { item.items.length > 0 ?
-                    <>
-                      <button className="pl-3" onClick={toggleDropdown}>
-                        <img src={dropdownimage} alt='Hydrogen' />
-                      </button>
-                      <ul className={`bg-white p-1.5 top-6 min-w-max dropdown absolute ${dropdown ? 'hidden' : ''}`}>
-                        {(item.items || []).map((submenu) => (
-                            <li key={submenu.id} className="p-1.5">
-                              <Link to={submenu.to} target={submenu.target} className="text-primary">
-                                {submenu.title}
-                              </Link>
-                            </li>
-                        ))}
-                      </ul>
-                    </>
-                    : ''
-                  }
-                </li>
-              </>
+              <li key={item.id} className="relative">
+                <Link to={item.type === "BLOG" ? `/blogs` + item.to : item.to} target={item.target}>
+                  {item.title}
+                </Link>
+                { item.items.length > 0 ?
+                  <>
+                    <button className="pl-3" onClick={toggleDropdown}>
+                      <img src={dropdownimage} alt='Hydrogen' />
+                    </button>
+                    <ul className={`bg-white p-1.5 top-6 min-w-max dropdown absolute ${dropdown ? 'hidden' : ''}`}>
+                      {(item.items || []).map((submenu, index) => (
+                          <li key={submenu.id} className="p-1.5">
+                            <Link to={submenu.type === "BLOG" ? `/blogs` + submenu.to : submenu.to} target={submenu.target} className="text-primary">
+                              {submenu.title}
+                            </Link>
+                          </li>
+                      ))}
+                    </ul>
+                  </>
+                  : ''
+                }
+              </li>
             ))}
           </ul>
         </nav>
