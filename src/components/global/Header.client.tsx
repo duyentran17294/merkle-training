@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {Link, useUrl, useCart} from '@shopify/hydrogen';
 import {useWindowScroll} from 'react-use';
 
@@ -16,6 +17,7 @@ import {useDrawer} from './Drawer.client';
 
 import type {EnhancedMenu} from '~/lib/utils';
 
+import dropdownimage from '../../assets/down-arrow.svg';
 /**
  * A client component that specifies the content of the header on the website
  */
@@ -150,6 +152,11 @@ function DesktopHeader({
   title: string;
 }) {
   const {y} = useWindowScroll();
+  const [dropdown, setDropdown] = useState(true);
+
+  const toggleDropdown = () => {
+    setDropdown(dropdown ? false : true);
+  }
 
   const styles = {
     button:
@@ -170,12 +177,35 @@ function DesktopHeader({
           {title}
         </Link>
         <nav className="flex gap-8">
-          {/* Top level menu items */}
-          {(menu?.items || []).map((item) => (
-            <Link key={item.id} to={item.to} target={item.target}>
-              {item.title}
-            </Link>
-          ))}
+          <ul className="flex gap-8">
+            {/* Top level menu items */}
+            {(menu?.items || []).map((item) => (
+              <>
+                <li className="relative">
+                  <Link key={item.id} to={item.to} target={item.target}>
+                    {item.title}
+                  </Link>
+                  { item.items.length > 0 ?
+                    <>
+                      <button className="pl-3" onClick={toggleDropdown}>
+                        <img src={dropdownimage} alt='Hydrogen' />
+                      </button>
+                      <ul className={`bg-white p-1.5 top-6 min-w-max dropdown absolute ${dropdown ? 'hidden' : ''}`}>
+                        {(item.items || []).map((submenu) => (
+                            <li key={submenu.id} className="p-1.5">
+                              <Link to={submenu.to} target={submenu.target} className="text-primary">
+                                {submenu.title}
+                              </Link>
+                            </li>
+                        ))}
+                      </ul>
+                    </>
+                    : ''
+                  }
+                </li>
+              </>
+            ))}
+          </ul>
         </nav>
       </div>
       <div className="flex items-center gap-1">
