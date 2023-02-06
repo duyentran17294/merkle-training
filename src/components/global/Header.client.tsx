@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState,  useRef, useEffect } from 'react';
 import {Link, useUrl, useCart} from '@shopify/hydrogen';
 import {useWindowScroll} from 'react-use';
 
@@ -15,7 +15,7 @@ import {CartDrawer} from './CartDrawer.client';
 import {MenuDrawer} from './MenuDrawer.client';
 import {useDrawer} from './Drawer.client';
 
-import type {EnhancedMenu} from '~/lib/utils';
+import type {EnhancedMenu, EnhancedMenuItem} from '~/lib/utils';
 
 import dropdownimage from '../../assets/down-arrow.svg';
 /**
@@ -152,11 +152,6 @@ function DesktopHeader({
   title: string;
 }) {
   const {y} = useWindowScroll();
-  const [dropdown, setDropdown] = useState(true);
-console.log(menu)
-  const toggleDropdown = () => {
-    setDropdown(dropdown ? false : true);
-  }
 
   const styles = {
     button:
@@ -185,20 +180,7 @@ console.log(menu)
                   {item.title}
                 </Link>
                 { item.items.length > 0 ?
-                  <>
-                    <button className="pl-3" onClick={toggleDropdown}>
-                      <img src={dropdownimage} alt='Hydrogen' />
-                    </button>
-                    <ul className={`bg-white p-1.5 top-6 min-w-max dropdown absolute ${dropdown ? 'hidden' : ''}`}>
-                      {(item.items || []).map((submenu, index) => (
-                          <li key={submenu.id} className="p-1.5">
-                            <Link to={submenu.type === "BLOG" ? `/blogs` + submenu.to : submenu.to} target={submenu.target} className="text-primary">
-                              {submenu.title}
-                            </Link>
-                          </li>
-                      ))}
-                    </ul>
-                  </>
+                  <Dropdown items={item.items} />
                   : ''
                 }
               </li>
@@ -238,6 +220,34 @@ console.log(menu)
   );
 }
 
+function Dropdown({
+  items
+}: {
+  items?: EnhancedMenuItem[]
+}) {
+  const [dropdown, setDropdown] = useState(true);
+
+  const toggleDropdown = () => {
+    setDropdown(dropdown ? false : true);
+  }
+  return (
+    <>
+      <button className="pl-3" onClick={toggleDropdown}>
+        <img src={dropdownimage} alt='Hydrogen' />
+      </button>
+      <ul className={`bg-white p-1.5 top-6 min-w-max dropdown absolute ${dropdown ? 'hidden' : ''}`}>
+        {(items || []).map((submenu, index) => (
+            <li key={submenu.id} className="p-1.5">
+              <Link to={submenu.type === "BLOG" ? `/blogs` + submenu.to : submenu.to} target={submenu.target} className="text-primary">
+                {submenu.title}
+              </Link>
+            </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
 function CartBadge({dark}: {dark: boolean}) {
   const {totalQuantity} = useCart();
 
@@ -256,3 +266,4 @@ function CartBadge({dark}: {dark: boolean}) {
     </div>
   );
 }
+
