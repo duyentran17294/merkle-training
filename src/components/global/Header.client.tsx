@@ -153,7 +153,7 @@ function DesktopHeader({
 }) {
   const {y} = useWindowScroll();
   const [dropdown, setDropdown] = useState(true);
-
+console.log(menu)
   const toggleDropdown = () => {
     setDropdown(dropdown ? false : true);
   }
