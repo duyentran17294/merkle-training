@@ -1,4 +1,9 @@
-import {useMemo, useState} from 'react';
+import {useMemo, useState, Suspense} from 'react';
+import {useLocalization, fetchSync} from '@shopify/hydrogen';
+import type {
+  Country,
+  CountryCode
+} from '@shopify/hydrogen/storefront-api-types';
 import {useRenderServerComponents} from '~/lib/utils';
 
 import {Button, Text} from '~/components';
@@ -62,6 +67,20 @@ export function AccountAddressEdit({
     renderServerComponents();
     close();
   }
+
+  const {
+    country: {isoCode},
+  } = useLocalization();
+  const currentCountry = useMemo<{name: string; isoCode: CountryCode}>(() => {
+    const regionNamesInEnglish = new Intl.DisplayNames(['en'], {
+      type: 'region',
+    });
+
+    return {
+      name: regionNamesInEnglish.of(isoCode)!,
+      isoCode: isoCode as CountryCode,
+    };
+  }, [isoCode]);
 
   return (
     <>
@@ -202,20 +221,12 @@ export function AccountAddressEdit({
             />
           </div>
           <div className="mt-3">
-            <input
-              className={getInputStyleClasses()}
-              id="country"
-              name="country"
-              type="text"
-              autoComplete="country-name"
-              placeholder="Country"
-              required
-              aria-label="Country"
-              value={country}
-              onChange={(event) => {
-                setCountry(event.target.value);
-              }}
-            />
+            <Suspense fallback={<div className="p-2">Loading…</div>}>
+              <Countries
+                selectedCountry={country}
+                onChange={setCountry}
+              />
+            </Suspense>
           </div>
           <div className="mt-3">
             <input
@@ -335,4 +346,46 @@ export async function callUpdateAddressApi({
       error: 'Error saving address. Please try again.',
     };
   }
+}
+
+export function Countries({
+  selectedCountry,
+  onChange,
+}: {
+  selectedCountry: string;
+  onChange: React.Dispatch<any>;
+}) {
+  const response = fetchSync('/api/countriesNewQuery');
+
+  let countries: Country[] | undefined;
+
+  if (response.ok) {
+    countries = response.json();
+  } else {
+    console.error(
+      `Unable to load available countries ${response.url} returned a ${response.status}`,
+    );
+  }
+
+  const onSelect = (value: string) => {
+    onChange(value);
+  }
+
+  return countries ? (
+    <select onChange={(event) => onSelect(event?.target.value)}>
+      {countries.map((country, index) => {
+        const isSelected = country.name === selectedCountry;
+        return (
+          <option selected={isSelected} key={index} value={country.isoCode}>{country.name}</option>
+        );
+      })}
+    </select>
+  ) : (
+    <div className="flex justify-center">
+      <div className="mt-4 text-center">
+        <div>Unable to load available countries.</div>
+        <div>Please try again.</div>
+      </div>
+    </div>
+  );
 }
