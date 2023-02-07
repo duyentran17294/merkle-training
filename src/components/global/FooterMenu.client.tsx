@@ -5,6 +5,10 @@ import {Link} from '@shopify/hydrogen';
 import {Heading, IconCaret} from '~/components';
 import type {EnhancedMenu, EnhancedMenuItem} from '~/lib/utils';
 
+
+import {Welcome} from '../Welcome.client';
+import {LangSwitcher} from '../LangSwitcher.client';
+
 /**
  * A server component that specifies the content of the footer on the website
  */
@@ -16,6 +20,8 @@ export function FooterMenu({menu}: {menu?: EnhancedMenu}) {
 
   return (
     <>
+      <LangSwitcher />
+      <Welcome />
       {(menu?.items || []).map((item: EnhancedMenuItem) => (
         <section key={item.id} className={styles.section}>
           <Disclosure>
