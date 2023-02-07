@@ -41,8 +41,6 @@ import {
         articleHandle: handle,
       },
     });
-
-    console.log(data)
   
     useServerAnalytics({
       shopify: {

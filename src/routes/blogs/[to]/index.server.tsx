@@ -76,6 +76,9 @@ function JournalsGrid({
            {articles.map((article) => (
             <li key={article.node.id}>
               <Link to={pathname + '/' + article.node.handle}>
+                {article.node.image && (
+                  <img src={article.node.image.url.toString()} />
+                )}
                 <h2 className="mt-4 font-medium">{article.node.handle}</h2>
                 <span className="block mt-1">{article.node.publishedAt}</span>
               </Link>
