@@ -18,6 +18,8 @@ import {HeaderFallback, EventsListener} from '~/components';
 import type {CountryCode} from '@shopify/hydrogen/storefront-api-types';
 import {NotFound} from '~/components/index.server';
 
+import {TranslationProvider} from './components/TranslationProvider.client';
+
 function App({request}: HydrogenRouteProps) {
   const pathname = new URL(request.normalizedUrl).pathname;
   const localeMatch = /^\/([a-z]{2})(\/|$)/i.exec(pathname);
@@ -37,29 +39,31 @@ function App({request}: HydrogenRouteProps) {
     <Suspense fallback={<HeaderFallback isHome={isHome} />}>
       <EventsListener />
       <ShopifyProvider countryCode={countryCode}>
-        <Seo
-          type="defaultSeo"
-          data={{
-            title: 'Hydrogen',
-            description:
-              "A custom storefront powered by Hydrogen, Shopify's React-based framework for building headless.",
-            titleTemplate: `%s · Hydrogen`,
-          }}
-        />
-        <CartProvider
-          countryCode={countryCode}
-          customerAccessToken={customerAccessToken}
-        >
-          <Router>
-            <FileRoutes
-              basePath={countryCode ? `/${countryCode}/` : undefined}
-            />
-            <Route path="*" page={<NotFound />} />
-          </Router>
-        </CartProvider>
-        <PerformanceMetrics />
-        {import.meta.env.DEV && <PerformanceMetricsDebug />}
-        <ShopifyAnalytics cookieDomain="hydrogen.shop" />
+        <TranslationProvider>
+          <Seo
+            type="defaultSeo"
+            data={{
+              title: 'Hydrogen',
+              description:
+                "A custom storefront powered by Hydrogen, Shopify's React-based framework for building headless.",
+              titleTemplate: `%s · Hydrogen`,
+            }}
+          />
+          <CartProvider
+            countryCode={countryCode}
+            customerAccessToken={customerAccessToken}
+          >
+            <Router>
+              <FileRoutes
+                basePath={countryCode ? `/${countryCode}/` : undefined}
+              />
+              <Route path="*" page={<NotFound />} />
+            </Router>
+          </CartProvider>
+          <PerformanceMetrics />
+          {import.meta.env.DEV && <PerformanceMetricsDebug />}
+          <ShopifyAnalytics cookieDomain="hydrogen.shop" />
+        </TranslationProvider>
       </ShopifyProvider>
     </Suspense>
   );
